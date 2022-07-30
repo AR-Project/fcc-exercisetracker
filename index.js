@@ -29,14 +29,11 @@ app.post("/api/users", async (req, res) => {
     const user = await User.create({
       username: req.body.username,
     })
-    // const validation = await User.find({username: req.body.username})
-    //   .select({username: 1})
-    // console.log(user)
-    // console.log(validation);
+
     res.json({
       username: user.username,
       _id: user._id})
-    // res.json(validation)
+
   } catch (e) {
     res.json(e.message)
   }
@@ -44,7 +41,6 @@ app.post("/api/users", async (req, res) => {
 
 app.get("/api/users/:_id/exercises", async (req, res) =>{
   try {
-    // console.log(req.params);
     const user = await User.findById(req.params._id);
     const wrap = {
       username: user.username,
@@ -60,12 +56,6 @@ app.get("/api/users/:_id/exercises", async (req, res) =>{
 
 app.post('/api/users/:_id/exercises', async (req, res) => {
   try {
-    // Function for filling date in exercise
-    // const datevalue = (str) => {
-    //   if (str == "") return new Date();
-    //   return str;
-    // }
-    
     let validDate;
     if (req.body.date === undefined) {
       validDate = new Date().toDateString();
@@ -74,8 +64,6 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
     }
 
     console.log(`${req.body.date} ==> ${validDate}`)
-
-    // console.log(validDate)
 
     // Wrap object to be pushed in user.log
     const exercise = {
@@ -98,7 +86,6 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
       username: user.username,
       description: exercise.description,
       duration: exercise.duration,
-      // date: new Date(exercise.date).toDateString(),
       date: validDate,
       _id: user._id
     }
@@ -106,11 +93,7 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
     result.duration = exercise.duration;
     result.date = exercise.date;
     result.description = exercise.description;
-    // Debug
-    // console.log(user);
-    
-    // Respond json 
-    // res.json(resultWrapper);
+
     res.json(result);
   } catch (e) {
     res.json(e.message);
@@ -153,23 +136,13 @@ app.get("/api/users/:_id/logs", async (req, res) =>{
       }
       user.log = temp;
     }
-
-    // user.log.forEach(element => {
-    //   const temp = new Date(element['date']).toDateString();
-    //   element['date'] = temp;
-    // });
+    // Debug: Logging user.log array
+    console.log(user.log)
     res.json(user);
   } catch (e) {
     res.json(e.message)
   }
-  // if (queryChecker(from, to, limit)) {
-  // } else if (from !== undefined || to !== undefined) {
-  //   try {
-  //     //TODO fetch data base
-  //   } catch (e) {
-  //     res.json(e.message)
-  //   }
-  // } 
+
 })
 
 

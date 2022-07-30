@@ -44,7 +44,7 @@ app.post("/api/users", async (req, res) => {
 
 app.get("/api/users/:_id/exercises", async (req, res) =>{
   try {
-    console.log(req.params);
+    // console.log(req.params);
     const user = await User.findById(req.params._id);
     const wrap = {
       username: user.username,
@@ -61,16 +61,27 @@ app.get("/api/users/:_id/exercises", async (req, res) =>{
 app.post('/api/users/:_id/exercises', async (req, res) => {
   try {
     // Function for filling date in exercise
-    const datevalue = (str) => {
-      if (str === undefined) return new Date();
-      return str;
+    // const datevalue = (str) => {
+    //   if (str == "") return new Date();
+    //   return str;
+    // }
+    
+    let validDate;
+    if (req.body.date === undefined) {
+      validDate = new Date().toDateString();
+    } else {
+      validDate = new Date(req.body.date).toDateString();
     }
+
+    console.log(`${req.body.date} ==> ${validDate}`)
+
+    // console.log(validDate)
 
     // Wrap object to be pushed in user.log
     const exercise = {
       description: req.body.description,
       duration: parseInt(req.body.duration),
-      date: datevalue(req.body.date)
+      date: validDate,
     }
 
     // Fetch user from database
@@ -78,23 +89,29 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
 
     // Push exercise object into log Array in user models
     user.log.push(exercise);
+    await user.save();
 
+    
+    const result = await User.findById(req.params._id).select({username: 1})
     // Wrap object to be use in respond json
     const resultWrapper = {
       username: user.username,
       description: exercise.description,
       duration: exercise.duration,
-      date: new Date(exercise.date).toDateString(),
+      // date: new Date(exercise.date).toDateString(),
+      date: validDate,
       _id: user._id
     }
     // Push updated data in database
-    await user.save();
-
+    result.duration = exercise.duration;
+    result.date = exercise.date;
+    result.description = exercise.description;
     // Debug
-    console.log(user);
-
+    // console.log(user);
+    
     // Respond json 
-    res.json(resultWrapper);
+    // res.json(resultWrapper);
+    res.json(result);
   } catch (e) {
     res.json(e.message);
   }
@@ -106,7 +123,7 @@ app.get("/api/users/:_id/logs", async (req, res) =>{
   const { from, to, limit } = req.query;
   
   try {
-    console.log(req.params);
+    // console.log(req.params);
     const user = await User.findById(req.params._id)
       .select({ username: 1, count: 1, log: 1 });
     user.count = user.log.length;
@@ -137,10 +154,10 @@ app.get("/api/users/:_id/logs", async (req, res) =>{
       user.log = temp;
     }
 
-    user.log.forEach(element => {
-      const temp = new Date(element['date']).toDateString();
-      element['date'] = temp;
-    });
+    // user.log.forEach(element => {
+    //   const temp = new Date(element['date']).toDateString();
+    //   element['date'] = temp;
+    // });
     res.json(user);
   } catch (e) {
     res.json(e.message)

@@ -7,12 +7,13 @@ const userSchema = new mongoose.Schema({
   },
   description: String,
   duration: Number,
+  date: String,
   // date: {
   //   type: Date,
   //   default: new Date()
   // },
   count: Number,
-  log : [],
+  log : [Object],
 })
 
 module.exports = mongoose.model('user', userSchema);
